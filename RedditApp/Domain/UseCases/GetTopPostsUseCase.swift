@@ -22,3 +22,20 @@ final class GetTopPosts: GetTopPostsUseCase {
         try await redditRepo.fetchPosts()
     }
 }
+
+// MARK: - Instantiate
+
+extension GetTopPosts {
+    static func instantiate() -> GetTopPosts {
+        GetTopPosts(redditRepo: RedditRepositoryImpl.instantiate())
+    }
+
+    static func mock() -> GetTopPosts {
+        struct RedditRepositoryMock: RedditRepository {
+            func fetchPosts() async throws -> [RedditPost] {
+                RedditPost.mockList()
+            }
+        }
+        return GetTopPosts(redditRepo: RedditRepositoryMock())
+    }
+}

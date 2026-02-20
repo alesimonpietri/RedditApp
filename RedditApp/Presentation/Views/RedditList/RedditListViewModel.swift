@@ -11,8 +11,21 @@ import Foundation
 final class RedditListViewModel {
     var posts: [RedditPost] = []
 
+    // MARK: - UseCases
+
+    @ObservationIgnored
+    private let getTopPostUseCase: GetTopPostsUseCase
+
+    init(getTopPostUseCase: GetTopPostsUseCase) {
+        self.getTopPostUseCase = getTopPostUseCase
+    }
+
     func fetchPost() async {
-        posts = RedditPost.mockList()
+        do {
+            posts = try await getTopPostUseCase.execute()
+        } catch {
+            print("error fetching posts: \(error)")
+        }
     }
 }
 
@@ -20,10 +33,10 @@ final class RedditListViewModel {
 
 extension RedditListViewModel {
     static func instantiate() -> RedditListViewModel {
-        RedditListViewModel()
+        RedditListViewModel(getTopPostUseCase: GetTopPosts.instantiate())
     }
 
     static func mock() -> RedditListViewModel {
-        RedditListViewModel()
+        RedditListViewModel(getTopPostUseCase: GetTopPosts.mock())
     }
 }
