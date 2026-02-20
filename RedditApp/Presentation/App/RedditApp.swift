@@ -25,7 +25,7 @@ struct RedditApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RedditListView(viewModel: .instantiate())
         }
         .modelContainer(sharedModelContainer)
     }
