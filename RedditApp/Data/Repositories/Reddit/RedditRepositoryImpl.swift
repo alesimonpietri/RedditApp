@@ -26,8 +26,6 @@ final class RedditRepositoryImpl: RedditRepository {
             throw APIError.httpStatus(http.statusCode, body: String(data: data, encoding: .utf8))
         }
 
-        let json = try JSONSerialization.jsonObject(with: data)
-
         let redditListResponse = try JSONDecoder().decode(RedditListResponse.self, from: data)
         return RedditPostMapper.map(response: redditListResponse)
     }
