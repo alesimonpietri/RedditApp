@@ -22,18 +22,22 @@ final class RedditRepositoryImpl: RedditRepository {
 
         var request = URLRequest(url: components.url!)
         request.httpMethod = "GET"
-        let (data, response) = try await URLSession.shared.data(for: request)
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
 
-        guard let http = response as? HTTPURLResponse else {
-            throw APIError.invalidResponse
-        }
-        guard (200...299).contains(http.statusCode) else {
-            throw APIError.httpStatus(http.statusCode, body: String(data: data, encoding: .utf8))
-        }
+            guard let http = response as? HTTPURLResponse else {
+                throw APIError.invalidResponse
+            }
+            guard (200...299).contains(http.statusCode) else {
+                throw APIError.httpStatus(http.statusCode, body: String(data: data, encoding: .utf8))
+            }
 
-        let redditListResponse = try JSONDecoder().decode(RedditListResponse.self, from: data)
-        let posts = RedditPostMapper.map(response: redditListResponse)
-        return (redditListResponse.data.after, posts)
+            let redditListResponse = try JSONDecoder().decode(RedditListResponse.self, from: data)
+            let posts = RedditPostMapper.map(response: redditListResponse)
+            return (redditListResponse.data.after, posts)
+        } catch {
+            throw AlertErrorMapper.map(error)
+        }
     }
 }
 

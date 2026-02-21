@@ -12,7 +12,7 @@ import SwiftData
 
 extension RedditListViewModel {
     static func instantiate(context: ModelContext) -> RedditListViewModel {
-        RedditListViewModel(getTopPostUseCase: GetTopPosts.instantiate(),
+        RedditListViewModel(getTopPostUseCase: GetTopPosts.instantiate(context: context),
                             getLocalPostsUseCase: GetLocalPost.instantiate(context: context),
                             saveLocalPostsUseCase: SaveLocalPosts.instantiate(context: context))
     }

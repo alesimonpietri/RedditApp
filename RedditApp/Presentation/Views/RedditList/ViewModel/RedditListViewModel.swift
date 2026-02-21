@@ -12,6 +12,7 @@ import Foundation
 final class RedditListViewModel {
     var posts: [RedditPost] = []
     var isLoadingMore: Bool = false { didSet { print("isLoading: \(isLoadingMore)") } }
+    var error: AlertError?
     @ObservationIgnored private var after: String?
 
     // MARK: - UseCases
@@ -34,8 +35,13 @@ final class RedditListViewModel {
             let result = try await getTopPostUseCase.execute(after: nil)
             after = result.after
             posts = result.posts
+        } catch var alertError as AlertError {
+            alertError.retryAction = { [weak self] in
+                Task { await self?.fetchInitalPage() }
+            }
+            error = alertError
         } catch {
-            print("error fetching posts: \(error)")
+            self.error = SomethingWentWrongError()
         }
     }
 
@@ -48,8 +54,13 @@ final class RedditListViewModel {
             let result = try await getTopPostUseCase.execute(after: after)
             after = result.after
             posts.append(contentsOf: result.posts)
+        } catch var alertError as AlertError {
+            alertError.retryAction = { [weak self] in
+                Task { await self?.fetchNextPage(post: post) }
+            }
+            error = alertError
         } catch {
-            print("error fetching posts: \(error)")
+            self.error = SomethingWentWrongError()
         }
     }
 }

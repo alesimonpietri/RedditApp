@@ -35,7 +35,7 @@ struct RedditListView: View {
         }
         .refreshable {
             await viewModel.fetchInitalPage()
-        }
+        }.appAlert($viewModel.error)
     }
 }
 
