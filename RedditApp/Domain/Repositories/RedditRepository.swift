@@ -8,5 +8,5 @@
 import Foundation
 
 protocol RedditRepository {
-    func fetchPosts() async throws -> [RedditPost]
+    func fetchPosts(after: String?) async throws -> (after: String?, posts: [RedditPost])
 }

@@ -16,14 +16,26 @@ struct RedditListView: View {
     @State var viewModel: RedditListViewModel
 
     var body: some View {
-        List(viewModel.posts) { post in
-            RedditPostView(post: post)
-                .listRowInsets(Layout.rowInsets)
-                .listRowSeparator(.hidden)
-        }.task {
-            await viewModel.fetchPost()
+        ScrollView {
+            LazyVStack(spacing: 8) {
+                ForEach(viewModel.posts) { post in
+                    RedditPostView(post: post)
+                        .onAppear {
+                            Task { await viewModel.fetchNextPage(post: post) }
+                        }
+                }
+
+                if viewModel.isLoadingMore {
+                    ProgressView()
+                }
+            }.padding(.horizontal, 16)
         }
-        .listStyle(.plain)
+        .task {
+            await viewModel.fetchInitalPage()
+        }
+        .refreshable {
+            await viewModel.fetchInitalPage()
+        }
     }
 }
 

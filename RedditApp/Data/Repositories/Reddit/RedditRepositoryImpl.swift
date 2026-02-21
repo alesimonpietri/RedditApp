@@ -8,12 +8,17 @@
 import Foundation
 
 final class RedditRepositoryImpl: RedditRepository {
-    func fetchPosts() async throws -> [RedditPost] {
+    func fetchPosts(after: String?) async throws -> (after: String?, posts: [RedditPost]) {
         var components = URLComponents(string: "https://www.reddit.com/top.json")!
-        components.queryItems = [
+        var items: [URLQueryItem] = [
             .init(name: "t", value: "week"),
             .init(name: "limit", value: "25")
-        ].compactMap { $0 }
+        ]
+
+        if let after {
+            items.append(.init(name: "after", value: after))
+        }
+        components.queryItems = items
 
         var request = URLRequest(url: components.url!)
         request.httpMethod = "GET"
@@ -27,7 +32,8 @@ final class RedditRepositoryImpl: RedditRepository {
         }
 
         let redditListResponse = try JSONDecoder().decode(RedditListResponse.self, from: data)
-        return RedditPostMapper.map(response: redditListResponse)
+        let posts = RedditPostMapper.map(response: redditListResponse)
+        return (redditListResponse.data.after, posts)
     }
 }
 

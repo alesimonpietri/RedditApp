@@ -8,7 +8,7 @@
 import Foundation
 
 protocol GetTopPostsUseCase {
-    func execute() async throws -> [RedditPost]
+    func execute(after: String?) async throws -> (after: String?, posts: [RedditPost])
 }
 
 final class GetTopPosts: GetTopPostsUseCase {
@@ -18,8 +18,8 @@ final class GetTopPosts: GetTopPostsUseCase {
         self.redditRepo = redditRepo
     }
     
-    func execute() async throws -> [RedditPost] {
-        try await redditRepo.fetchPosts()
+    func execute(after: String?) async throws -> (after: String?, posts: [RedditPost]){
+        try await redditRepo.fetchPosts(after: after)
     }
 }
 
@@ -32,8 +32,8 @@ extension GetTopPosts {
 
     static func mock() -> GetTopPosts {
         struct RedditRepositoryMock: RedditRepository {
-            func fetchPosts() async throws -> [RedditPost] {
-                RedditPost.mockList()
+            func fetchPosts(after: String?) async throws -> (after: String?, posts: [RedditPost]) {
+                (nil, RedditPost.mockList())
             }
         }
         return GetTopPosts(redditRepo: RedditRepositoryMock())
