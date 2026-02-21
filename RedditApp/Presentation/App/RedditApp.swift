@@ -10,23 +10,19 @@ import SwiftData
 
 @main
 struct RedditApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+    private let container: ModelContainer
 
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            container = try ModelContainer(for: RedditPostModel.self)
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("ModelContainer error: \(error)")
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
-            RedditListView(viewModel: .instantiate())
+            RedditListView(viewModel: .instantiate(context: container.mainContext))
         }
-        .modelContainer(sharedModelContainer)
     }
 }

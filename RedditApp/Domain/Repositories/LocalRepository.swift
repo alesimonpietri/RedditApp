@@ -10,5 +10,5 @@ import Foundation
 protocol LocalRepository {
     func fetchAll() async throws -> [RedditPost]
     func search(text: String) async throws -> [RedditPost]
-    func save(post: [RedditPost]) async throws
+    func save(posts: [RedditPost]) async throws
 }
